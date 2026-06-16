@@ -29,12 +29,18 @@ from **Tune → Export signals** to feed the backtest.
 ### Two ways to supply the API key
 - **Bring-your-own-key (default):** each user pastes their Anthropic key in **Tune**.
   It lives only in their browser. Never commit a key to the repo.
-- **Shared proxy:** deploy `worker/` and set `PROXY_URL` in `src/config.js`. Now the
-  site runs with no key in the browser — good for sharing the URL.
+- **Shared proxy (no key in the browser):** deploy a tiny backend that holds the
+  key server-side, then set `VITE_PROXY_URL` (build-time env var — see
+  `.env.example`). Now the site runs with no key in the browser — good for
+  sharing the URL. Two ready-made proxies are included:
+  - **Vercel** (no Cloudflare account needed; hosts the app + proxy together) —
+    see `api/README.md`.
+  - **Cloudflare Worker** — see `worker/README.md`.
 
-## 2. The proxy — see `worker/README.md`
-Holds your key server-side as a Cloudflare secret, with an origin allowlist and an
-optional shared token.
+## 2. The proxy
+Holds your key server-side, with an origin allowlist and an optional shared token.
+- `api/` — Vercel serverless function (`api/README.md`)
+- `worker/` — Cloudflare Worker (`worker/README.md`)
 
 ## 3. The backtest — see `backtest/README.md`
 ```bash
