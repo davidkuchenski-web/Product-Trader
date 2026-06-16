@@ -319,6 +319,30 @@ export default function App() {
     URL.revokeObjectURL(url);
   }
 
+  function exportPortfolio() {
+    if (s.positions.length === 0 && s.closed.length === 0) { setErr("No positions to export yet — paper-buy something first."); return; }
+    const esc = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const d = (t) => (t ? new Date(t).toISOString().slice(0, 10) : "");
+    const cols = ["status", "ticker", "company", "product", "shares", "entryDate", "entryPrice", "markOrExitPrice", "marketValue", "pnl", "pnlPct", "score", "materiality", "exitDate"];
+    const lines = [cols.join(",")];
+    s.positions.forEach((p) => {
+      const last = p.lastPrice || p.entryPrice;
+      const val = p.shares * last;
+      const pnl = p.shares * (last - p.entryPrice);
+      const pct = p.entryPrice ? ((last - p.entryPrice) / p.entryPrice) * 100 : 0;
+      lines.push(["open", p.ticker, p.company, p.product, p.shares, d(p.entryDate), p.entryPrice, last, val.toFixed(2), pnl.toFixed(2), pct.toFixed(2), p.score ?? "", p.materiality ?? "", ""].map(esc).join(","));
+    });
+    s.closed.forEach((c) => {
+      const pct = c.entryPrice ? ((c.exitPrice - c.entryPrice) / c.entryPrice) * 100 : 0;
+      lines.push(["closed", c.ticker, c.company, c.product, c.shares, d(c.entryDate), c.entryPrice, c.exitPrice, (c.shares * c.exitPrice).toFixed(2), (c.realizedPnl ?? 0).toFixed(2), pct.toFixed(2), c.score ?? "", c.materiality ?? "", d(c.exitDate)].map(esc).join(","));
+    });
+    const blob = new Blob([lines.join("\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "product-love-portfolio.csv"; a.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <div className="root">
       <style>{CSS}</style>
@@ -429,7 +453,10 @@ export default function App() {
               <div><div className="stat-k">Cash</div><div className="stat-v sm">{money(s.cash)}</div></div>
               <div><div className="stat-k">Holdings</div><div className="stat-v sm">{money(portfolioValue)}</div></div>
               <div><div className="stat-k">Realized</div><div className="stat-v sm" style={{ color: gain(realized) }}>{realized >= 0 ? "+" : ""}{money(realized)}</div></div>
-              <button className="btn-refresh" onClick={refreshPrices} disabled={refreshing || s.positions.length === 0}>{refreshing ? <Loader2 size={14} className="spin" /> : <RefreshCw size={14} />} Mark to market</button>
+              <div className="pf-actions">
+                <button className="btn-refresh" onClick={refreshPrices} disabled={refreshing || s.positions.length === 0}>{refreshing ? <Loader2 size={14} className="spin" /> : <RefreshCw size={14} />} Mark to market</button>
+                <button className="btn-refresh" onClick={exportPortfolio} disabled={s.positions.length === 0 && s.closed.length === 0}><Download size={14} /> Export</button>
+              </div>
             </div>
             {s.positions.length === 0 ? (
               <div className="empty"><div className="empty-h">No open positions.</div><div className="empty-p">Paper-buy from Analyze or your Watchlist. Then mark to market to see how the love thesis plays out.</div></div>
@@ -639,7 +666,9 @@ body { margin: 0; }
 .icon-btn { background: none; border: none; color: #6B7886; cursor: pointer; padding: 6px; display: flex; }
 .icon-btn:hover { color: #FF6B6B; }
 .pf-summary { display: flex; gap: 18px; align-items: center; background: #161D26; border: 1px solid #28323E; border-radius: 13px; padding: 14px 16px; flex-wrap: wrap; }
-.btn-refresh { margin-left: auto; display: flex; align-items: center; gap: 7px; background: #222D38; border: 1px solid #2C3845; color: #E6EBF0; padding: 9px 13px; border-radius: 9px; font-size: 12.5px; font-weight: 500; cursor: pointer; font-family: inherit; }
+.pf-actions { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-refresh { display: flex; align-items: center; gap: 7px; background: #222D38; border: 1px solid #2C3845; color: #E6EBF0; padding: 9px 13px; border-radius: 9px; font-size: 12.5px; font-weight: 500; cursor: pointer; font-family: inherit; }
+.btn-refresh:hover:not(:disabled) { border-color: #FF4D7E; }
 .btn-refresh:disabled { opacity: .5; cursor: default; }
 .pos { display: flex; justify-content: space-between; gap: 12px; background: #161D26; border: 1px solid #28323E; border-radius: 13px; padding: 13px 15px; }
 .pos-meta { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6B7886; margin-top: 5px; }
