@@ -14,11 +14,19 @@ backtest/   Python harness — measure whether the love score actually predicts 
 npm install
 npm run dev            # http://localhost:5173
 ```
-Name a product → a research agent (Claude + live web search) finds the company,
-checks it's publicly investable, scores how loved it is, and flags **materiality**
-(a beloved product inside a mega-cap is a weak signal). Tune the weights, paper-buy,
-track P&L. Everything persists in your browser. Every analysis is logged; export it
-from **Tune → Export signals** to feed the backtest.
+Two ways in:
+- **Analyze** — name a product and a research agent (Claude + live web search) finds
+  the company, checks it's publicly investable, scores how loved it is, and flags
+  **materiality** (a beloved product inside a mega-cap is a weak signal).
+- **Discover** — don't name anything; send a scout agent to crawl reviews,
+  communities, and trend data for loved products behind **publicly traded** companies
+  with **high growth upside**. It returns a ranked shortlist (strongest upside first),
+  each with the love subscores plus a growth-upside score, ready to watch or paper-buy.
+  Add an optional theme (e.g. *wearables*, *beauty*) to focus the hunt.
+
+Tune the weights, paper-buy, track P&L. Everything persists in your browser. Every
+analysis and discovery is logged; export it from **Tune → Export signals** to feed
+the backtest.
 
 ### Deploy to GitHub Pages
 1. Push to GitHub with the default branch `main`.
