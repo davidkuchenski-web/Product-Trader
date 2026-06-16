@@ -40,6 +40,29 @@ const MAT = {
   negligible: { c: "#FF6B6B", label: "Negligible — noise" },
 };
 
+const DISCOVER_THEMES = [
+  "AI compute / data center hardware",
+  "AI inference chips & accelerators",
+  "Liquid cooling for data centers",
+  "Grid-scale energy storage (batteries)",
+  "Nuclear power & uranium",
+  "Solar + storage systems",
+  "GLP-1 / metabolic drugs",
+  "Oral GLP-1 formulations",
+  "Digital health / telehealth (DTC pharmacy)",
+  "Cybersecurity (AI-era threat defense)",
+  "AI-native / agentic software",
+  "Smart home devices",
+  "AI-enabled consumer electronics (laptops, phones, wearables)",
+  "Defense tech & autonomous systems",
+  "Drones & counter-drone systems",
+  "Robotics & industrial automation",
+  "Humanoid robots",
+  "Health, wellness & supplements",
+  "Power grid equipment / electrification (transformers, transmission)",
+  "Quantum computing",
+];
+
 // ----- api helpers -----
 function extractText(data) {
   if (!data || !Array.isArray(data.content)) return "";
@@ -213,10 +236,11 @@ export default function App() {
     } catch (e) { handleErr(e); } finally { setBusy(false); }
   }
 
-  async function discover() {
+  function runTheme(t) { setDiscoverQuery(t); discover(t); }
+  async function discover(themeOverride) {
     if (busy) return;
     setBusy(true); setErr("");
-    const theme = discoverQuery.trim();
+    const theme = (typeof themeOverride === "string" ? themeOverride : discoverQuery).trim();
     const ask = theme
       ? `Focus the hunt on this theme/sector: ${theme}. Find the strongest opportunities within it.`
       : `No theme given — scan broadly for the strongest opportunities across consumer products, hardware, software, and brands.`;
@@ -352,7 +376,12 @@ export default function App() {
               <input className="search-in" placeholder="Optional theme — e.g. wearables, beauty, AI hardware, restaurants…" value={discoverQuery} onChange={(e) => setDiscoverQuery(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") discover(); }} />
               <button className="search-go" onClick={discover} disabled={busy}>{busy ? <Loader2 size={16} className="spin" /> : <Compass size={16} />}{busy ? "Scanning" : "Discover"}</button>
             </div>
-            <p className="micro">An agent crawls reviews, communities, and trend data to surface loved products from <b>publicly traded</b> companies with <b>high growth upside</b> — strongest upside first. Leave the theme blank to scan broadly. Prices are approximate and delayed — paper only.</p>
+            <p className="micro">An agent crawls reviews, communities, and trend data to surface loved products from <b>publicly traded</b> companies with <b>high growth upside</b> — strongest upside first. Tap a theme below or type your own; leave it blank to scan broadly. Prices are approximate and delayed — paper only.</p>
+            <div className="chips">
+              {DISCOVER_THEMES.map((t) => (
+                <button key={t} className={"chip" + (discoverQuery === t ? " on" : "")} onClick={() => runTheme(t)} disabled={busy}>{t}</button>
+              ))}
+            </div>
             {!PROXY_URL && !apiKey && <div className="warn" style={{ marginTop: 4 }}><KeyRound size={14} /> Add your Anthropic API key in <b>&nbsp;Tune&nbsp;</b> to enable the scout. It stays in your browser only.</div>}
 
             {s.discoveries?.length > 0 && (
@@ -572,6 +601,11 @@ body { margin: 0; }
 .upside-h { display: flex; align-items: center; gap: 7px; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #3DD68C; font-weight: 600; }
 .upside-score { font-family: 'JetBrains Mono', monospace; background: #3DD68C; color: #06120C; border-radius: 6px; padding: 1px 7px; font-size: 11px; letter-spacing: 0; }
 .upside-t { font-size: 13px; line-height: 1.5; color: #C9D2DC; margin-top: 7px; }
+.chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.chip { background: #161D26; border: 1px solid #2C3845; color: #C9D2DC; padding: 6px 11px; border-radius: 999px; font-size: 12px; cursor: pointer; font-family: inherit; line-height: 1.3; }
+.chip:hover { border-color: #FF4D7E; color: #fff; }
+.chip.on { background: #FF4D7E18; border-color: #FF4D7E; color: #FF7DA0; }
+.chip:disabled { opacity: .5; cursor: default; }
 .disc-bar { display: flex; align-items: center; justify-content: space-between; }
 .disc-count { font-size: 12px; color: #8A97A6; }
 .disc-clear { display: flex; align-items: center; gap: 5px; background: none; border: 1px solid #2C3845; color: #8A97A6; padding: 5px 10px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: inherit; }
