@@ -1,0 +1,54 @@
+# Product Love
+
+Tooling for one investing thesis: *products people love early lead the re-rating
+of the company that makes them.* Three parts:
+
+```
+src/        the app — analyze a product, score the love, paper-trade, log signals
+worker/     Cloudflare Worker proxy — share the site without sharing your API key
+backtest/   Python harness — measure whether the love score actually predicts returns
+```
+
+## 1. The app (static, browser-only)
+```bash
+npm install
+npm run dev            # http://localhost:5173
+```
+Name a product → a research agent (Claude + live web search) finds the company,
+checks it's publicly investable, scores how loved it is, and flags **materiality**
+(a beloved product inside a mega-cap is a weak signal). Tune the weights, paper-buy,
+track P&L. Everything persists in your browser. Every analysis is logged; export it
+from **Tune → Export signals** to feed the backtest.
+
+### Deploy to GitHub Pages
+1. Push to GitHub with the default branch `main`.
+2. **Settings → Pages → Source: GitHub Actions**.
+3. Each push to `main` builds and publishes to `https://<you>.github.io/<repo>/`.
+   `vite.config.js` uses `base: "./"`, so the subpath just works.
+
+### Two ways to supply the API key
+- **Bring-your-own-key (default):** each user pastes their Anthropic key in **Tune**.
+  It lives only in their browser. Never commit a key to the repo.
+- **Shared proxy:** deploy `worker/` and set `PROXY_URL` in `src/config.js`. Now the
+  site runs with no key in the browser — good for sharing the URL.
+
+## 2. The proxy — see `worker/README.md`
+Holds your key server-side as a Cloudflare secret, with an origin allowlist and an
+optional shared token.
+
+## 3. The backtest — see `backtest/README.md`
+```bash
+cd backtest
+pip install -r requirements.txt
+python backtest.py --synthetic                  # demo the pipeline, no data
+python backtest.py --signals product-love-signals.csv
+```
+Reports the Information Coefficient (does score predict forward excess return?), a
+score-quintile study, and a top-N rotation vs SPY with an equity curve.
+
+## Honest limits
+- Prices in the app are web-sourced approximations, delayed — paper only.
+- A live search gives sentiment *now*, not history, so the truest backtest is
+  forward: accumulate the app's log over time and re-run. That growing log is your
+  proprietary out-of-sample dataset.
+- Nothing here is investment advice. You define the criteria; the tools run them.

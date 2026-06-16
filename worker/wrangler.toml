@@ -1,0 +1,12 @@
+name = "product-love-proxy"
+main = "src/worker.js"
+compatibility_date = "2024-11-01"
+
+# Lock this to your GitHub Pages origin so random sites can't burn your credits.
+# Comma-separated, no trailing slash. Use "*" only while testing.
+[vars]
+ALLOWED_ORIGINS = "https://YOUR-USERNAME.github.io"
+
+# Secrets are NOT set here. Run these once:
+#   wrangler secret put ANTHROPIC_API_KEY
+#   wrangler secret put PROXY_TOKEN   # optional
