@@ -113,10 +113,11 @@ Do all of this:
 2. Judge how much people LOVE the product from reviews and discussion across multiple independent sources.
 3. Judge how MATERIAL the product is to the parent company's total business: "core" (the product basically is the company), "significant", "minor", or "negligible".
 4. If public, include approxPrice = most recent share price in USD (number).
+5. Judge the GROWTH UPSIDE for the parent stock: how much could this product re-rate the company (favor cases where it's material to a fast-growing or under-the-radar name; discount mega-caps where it's already priced in).
 
 Return ONLY a JSON object, no prose, no markdown fences, exactly this shape:
-{"product":string,"company":string,"ticker":string|null,"exchange":string|null,"isPublic":boolean,"materiality":"core"|"significant"|"minor"|"negligible","materialityNote":string,"subscores":{"loveIntensity":int,"reviewQuality":int,"momentum":int,"sourceBreadth":int,"earliness":int},"evidence":[string,string,string],"rationale":string,"approxPrice":number|null}
-All scores are integers 0-100. Max 3 short evidence bullets. rationale = one sentence.`;
+{"product":string,"company":string,"ticker":string|null,"exchange":string|null,"isPublic":boolean,"materiality":"core"|"significant"|"minor"|"negligible","materialityNote":string,"subscores":{"loveIntensity":int,"reviewQuality":int,"momentum":int,"sourceBreadth":int,"earliness":int},"growthScore":int,"upside":string,"evidence":[string,string,string],"rationale":string,"approxPrice":number|null}
+All scores are integers 0-100. growthScore = your conviction in growth upside for the stock. upside = one sentence naming the growth catalyst (or why it's limited). Max 3 short evidence bullets. rationale = one sentence.`;
 
 const DISCOVER_SYS = `You are an equity-research scout for a "products over brands" thesis: products people love early lead the re-rating of the company that makes them. Your job is to PROACTIVELY discover investable opportunities — you are NOT given a product, you go find them.
 
